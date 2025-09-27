@@ -48,14 +48,14 @@
             // progress
             // 
             this.progress.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.progress.Location = new System.Drawing.Point(0, 457);
+            this.progress.Location = new System.Drawing.Point(0, 488);
             this.progress.Name = "progress";
             this.progress.Size = new System.Drawing.Size(372, 23);
             this.progress.TabIndex = 7;
             // 
             // btnMerge
             // 
-            this.btnMerge.Location = new System.Drawing.Point(295, 414);
+            this.btnMerge.Location = new System.Drawing.Point(295, 447);
             this.btnMerge.Name = "btnMerge";
             this.btnMerge.Size = new System.Drawing.Size(65, 35);
             this.btnMerge.TabIndex = 8;
@@ -65,7 +65,7 @@
             // 
             // btnCancelar
             // 
-            this.btnCancelar.Location = new System.Drawing.Point(224, 414);
+            this.btnCancelar.Location = new System.Drawing.Point(224, 447);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(65, 35);
             this.btnCancelar.TabIndex = 9;
@@ -173,7 +173,7 @@
             // 
             // btnLimpar
             // 
-            this.btnLimpar.Location = new System.Drawing.Point(153, 414);
+            this.btnLimpar.Location = new System.Drawing.Point(153, 447);
             this.btnLimpar.Name = "btnLimpar";
             this.btnLimpar.Size = new System.Drawing.Size(65, 35);
             this.btnLimpar.TabIndex = 22;
@@ -185,7 +185,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(372, 480);
+            this.ClientSize = new System.Drawing.Size(372, 511);
             this.Controls.Add(this.btnLimpar);
             this.Controls.Add(this.lblStatusLog);
             this.Controls.Add(this.lblTituloLog);
