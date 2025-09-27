@@ -1,5 +1,6 @@
 ﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -143,7 +144,7 @@ namespace WinForms_MergeFiles
 
                 Task.Run(() =>
                 {
-                    bool sucesso = FazerMergePdfs(_arquivosSelecionados, _caminhoDestino, nomeArquivoSaida);
+                    bool sucesso = FazerMergePDF(_arquivosSelecionados, _caminhoDestino, nomeArquivoSaida);
 
                     this.Invoke(new Action(() =>
                     {
@@ -227,7 +228,7 @@ namespace WinForms_MergeFiles
         #endregion
 
         #region Merge
-        private bool FazerMergePdfs(List<string> arquivos, string caminhoDestino, string nomeArquivoSaida = "arquivo_unificado.pdf")
+        private bool FazerMergePDF(List<string> arquivos, string caminhoDestino, string nomeArquivoSaida = "arquivo_unificado.pdf")
         {
             try
             {
@@ -320,57 +321,6 @@ namespace WinForms_MergeFiles
                 return false;
             }
         }
-        private void AdicionarMarcaDagua2(string caminhoArquivo)
-        {
-            try
-            {
-                string arquivoTemp = System.IO.Path.GetTempFileName() + ".pdf";
-
-                using (PdfReader reader = new PdfReader(caminhoArquivo))
-                {
-                    using (FileStream fs = new FileStream(arquivoTemp, FileMode.Create))
-                    {
-                        using (PdfStamper stamper = new PdfStamper(reader, fs))
-                        {
-                            BaseFont baseFont = BaseFont.CreateFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-                            iTextSharp.text.Font font = new iTextSharp.text.Font(baseFont, 12, iTextSharp.text.Font.NORMAL, BaseColor.RED);
-
-                            Phrase phrase;
-                            int pageCount = reader.NumberOfPages;
-
-                            for (int i = 1; i <= pageCount; i++)
-                            {
-                                Rectangle pageSize = reader.GetPageSize(i);
-                                float width = pageSize.Width;
-                                float height = pageSize.Height;
-
-                                PdfContentByte canvas = stamper.GetOverContent(i);
-
-                                phrase = new Phrase($"{i}/{pageCount}", font);
-                                ColumnText.ShowTextAligned(
-                                    canvas,
-                                    Element.ALIGN_RIGHT,
-                                    phrase,
-                                    width - 20,
-                                    height - 20,
-                                    0
-                                );
-                            }
-                        }
-                    }
-                }
-
-                File.Delete(caminhoArquivo);
-                File.Move(arquivoTemp, caminhoArquivo);
-
-                AdicionarLog("Marca d'água 'Código Junior' adicionada em todas as páginas");
-            }
-            catch (Exception ex)
-            {
-                AdicionarLog($"Erro ao adicionar marca d'água: {ex.Message}");
-                throw;
-            }
-        }
         private void AdicionarLog(string mensagem)
         {
             if (txtLog.InvokeRequired)
@@ -402,7 +352,6 @@ namespace WinForms_MergeFiles
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             return $"merged_{timestamp}.pdf";
         }
-
         private void AdicionarMarcaDagua(string caminhoArquivo)
         {
             try
