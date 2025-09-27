@@ -1,8 +1,11 @@
-﻿using System;
+﻿using iTextSharp.text;
+using iTextSharp.text.pdf;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
+using System.Diagnostics.Contracts;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -306,6 +309,8 @@ namespace WinForms_MergeFiles
                     }
                 }
 
+                AdicionarMarcaDagua(caminhoCompleto);
+
                 AdicionarLog($"Merge concluído! Arquivo salvo em: {caminhoCompleto}");
                 return true;
             }
@@ -315,7 +320,57 @@ namespace WinForms_MergeFiles
                 return false;
             }
         }
+        private void AdicionarMarcaDagua(string caminhoArquivo)
+        {
+            try
+            {
+                string arquivoTemp = System.IO.Path.GetTempFileName() + ".pdf";
 
+                using (PdfReader reader = new PdfReader(caminhoArquivo))
+                {
+                    using (FileStream fs = new FileStream(arquivoTemp, FileMode.Create))
+                    {
+                        using (PdfStamper stamper = new PdfStamper(reader, fs))
+                        {
+                            BaseFont baseFont = BaseFont.CreateFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                            iTextSharp.text.Font font = new iTextSharp.text.Font(baseFont, 12, iTextSharp.text.Font.NORMAL, BaseColor.RED);
+
+                            Phrase phrase;
+                            int pageCount = reader.NumberOfPages;
+
+                            for (int i = 1; i <= pageCount; i++)
+                            {
+                                Rectangle pageSize = reader.GetPageSize(i);
+                                float width = pageSize.Width;
+                                float height = pageSize.Height;
+
+                                PdfContentByte canvas = stamper.GetOverContent(i);
+
+                                phrase = new Phrase($"{i}/{pageCount}", font);
+                                ColumnText.ShowTextAligned(
+                                    canvas,
+                                    Element.ALIGN_RIGHT,
+                                    phrase,
+                                    width - 20,
+                                    height - 20,
+                                    0
+                                );
+                            }
+                        }
+                    }
+                }
+
+                File.Delete(caminhoArquivo);
+                File.Move(arquivoTemp, caminhoArquivo);
+
+                AdicionarLog("Marca d'água 'Código Junior' adicionada em todas as páginas");
+            }
+            catch (Exception ex)
+            {
+                AdicionarLog($"Erro ao adicionar marca d'água: {ex.Message}");
+                throw;
+            }
+        }
         private void AdicionarLog(string mensagem)
         {
             if (txtLog.InvokeRequired)
@@ -331,7 +386,6 @@ namespace WinForms_MergeFiles
                 lblStatusLog.Text = $"Última ação: {mensagem}";
             }
         }
-
         private void AtualizarProgresso(int valor)
         {
             if (progress.InvokeRequired)
@@ -343,7 +397,6 @@ namespace WinForms_MergeFiles
                 progress.Value = Math.Min(Math.Max(valor, progress.Minimum), progress.Maximum);
             }
         }
-
         private string GerarNomeArquivoSaida()
         {
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
