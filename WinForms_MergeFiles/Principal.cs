@@ -320,7 +320,7 @@ namespace WinForms_MergeFiles
                 return false;
             }
         }
-        private void AdicionarMarcaDagua(string caminhoArquivo)
+        private void AdicionarMarcaDagua2(string caminhoArquivo)
         {
             try
             {
@@ -401,6 +401,64 @@ namespace WinForms_MergeFiles
         {
             string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             return $"merged_{timestamp}.pdf";
+        }
+
+        private void AdicionarMarcaDagua(string caminhoArquivo)
+        {
+            try
+            {
+                string arquivoTemp = System.IO.Path.GetTempFileName() + ".pdf";
+
+                using (PdfReader reader = new PdfReader(caminhoArquivo))
+                {
+                    using (FileStream fs = new FileStream(arquivoTemp, FileMode.Create))
+                    {
+                        using (PdfStamper stamper = new PdfStamper(reader, fs))
+                        {
+                            BaseFont baseFont = BaseFont.CreateFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                            iTextSharp.text.Font font = new iTextSharp.text.Font(baseFont, 12, iTextSharp.text.Font.NORMAL, BaseColor.BLACK);
+
+                            Phrase phrase;
+                            int pageCount = reader.NumberOfPages;
+
+                            for (int i = 1; i <= pageCount; i++)
+                            {
+                                Rectangle pageSize = reader.GetPageSize(i);
+                                float width = pageSize.Width;
+                                float height = pageSize.Height;
+
+                                PdfContentByte canvas = stamper.GetOverContent(i);
+
+                                string texto = $"{i}/{pageCount}";
+                                
+                                canvas.SetColorFill(BaseColor.WHITE);
+                                canvas.Rectangle(width - (80+15), height - 24, 80, 15);
+                                canvas.Fill();
+
+                                phrase = new Phrase(texto, font);
+                                ColumnText.ShowTextAligned(
+                                    canvas,
+                                    Element.ALIGN_RIGHT,
+                                    phrase,
+                                    width - 20,
+                                    height - 20,
+                                    0
+                                );
+                            }
+                        }
+                    }
+                }
+
+                File.Delete(caminhoArquivo);
+                File.Move(arquivoTemp, caminhoArquivo);
+
+                AdicionarLog("Numeração de páginas com fundo azul adicionada em todas as páginas");
+            }
+            catch (Exception ex)
+            {
+                AdicionarLog($"Erro ao adicionar marca d'água: {ex.Message}");
+                throw;
+            }
         }
         #endregion
     }
